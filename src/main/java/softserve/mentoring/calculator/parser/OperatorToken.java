@@ -30,8 +30,7 @@ public class OperatorToken extends CalculationToken<Operator> implements Compara
         return priority;
     }
 
-    public boolean isBraketedFrom(OperatorToken operatorToken) {
-        int delta = this.priority - operatorToken.priority;
-        return delta >= Symbol.PRIORITY_DELTA;
+    public boolean isBracketedFrom(OperatorToken operatorToken) {
+        return this.priority - Symbol.PRIORITY_DELTA > operatorToken.priority - Symbol.PRIORITY_DELTA;
     }
 }

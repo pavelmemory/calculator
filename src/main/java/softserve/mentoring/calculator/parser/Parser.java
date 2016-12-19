@@ -2,14 +2,15 @@ package softserve.mentoring.calculator.parser;
 
 import softserve.mentoring.calculator.Operator;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 import static softserve.mentoring.calculator.parser.Symbol.PRIORITY_DELTA;
 
 public class Parser {
 
     private final char[] expression;
-    private LinkedList<CalculationToken<?>> tokens;
+    private List<CalculationToken<?>> tokens;
     private int index;
     private int priority;
 
@@ -17,9 +18,9 @@ public class Parser {
         this.expression = expression;
     }
 
-    public LinkedList<CalculationToken<?>> parse() {
+    public List<CalculationToken<?>> parse() {
         this.index = -1;
-        this.tokens = new LinkedList<>();
+        this.tokens = new ArrayList<>();
         this.priority = 0;
         while (hasNext()) {
             Symbol symbol = getNext();

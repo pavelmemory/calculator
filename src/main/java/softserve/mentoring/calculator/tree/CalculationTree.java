@@ -4,43 +4,33 @@ import softserve.mentoring.calculator.parser.CalculationToken;
 import softserve.mentoring.calculator.parser.OperatorToken;
 import softserve.mentoring.calculator.parser.ValueToken;
 
-import java.util.LinkedList;
-import java.util.ListIterator;
+import java.util.List;
 
 public class CalculationTree {
 
     private CalculationNode root;
 
-    public static CalculationTree build(LinkedList<CalculationToken<?>> tokens) {
+    public static CalculationTree build(List<CalculationToken<?>> tokens) {
         CalculationTree tree = new CalculationTree();
-        ListIterator<CalculationToken<?>> iterator = tokens.listIterator();
-        while (iterator.hasNext()) {
-            boolean hasPrevious = iterator.hasPrevious();
-            CalculationToken<?> token = iterator.next();
+        for (int i = 0; i < tokens.size(); ++i) {
+            CalculationToken<?> token = tokens.get(i);
             if (token.isValue()) {
-                if (hasPrevious) {
-                    iterator.previous();
-                    if (iterator.previous().isValue()) {
+                if (i > 0) {
+                    if (tokens.get(i - 1).isValue()) {
                         throw new IllegalStateException("Operator must be placed between two values");
                     }
-                    iterator.next();
-                    iterator.next();
                 }
             } else if (token.isOperation()) {
                 OperatorToken operatorToken = (OperatorToken) token;
-                if (hasPrevious) {
-                    iterator.previous();
-                    CalculationToken<?> previous = iterator.previous();
-                    if (previous.isOperation()) {
-                        OperatorToken previousOperatorToken = (OperatorToken) previous;
-                        if (!operatorToken.isBraketedFrom(previousOperatorToken)) {
+                if (i > 0) {
+                    if (tokens.get(i - 1).isOperation()) {
+                        OperatorToken previousOperatorToken = (OperatorToken) tokens.get(i - 1);
+                        if (!operatorToken.isBracketedFrom(previousOperatorToken)) {
                             throw new IllegalStateException("Bracket expected between operations");
                         } else {
                             tree.add(ValueToken.ZERO);
                         }
                     }
-                    iterator.next();
-                    iterator.next();
                 } else {
                     if (operatorToken.get().isUnary()) {
                         tree.add(ValueToken.ZERO);
@@ -83,26 +73,16 @@ public class CalculationTree {
             } else {
                 throw new IllegalStateException("Operation node has no left child");
             }
-        } else if (current.getPriority() > node.getPriority()) {
-            CalculationNode currentParent = current.getParent();
-            if (currentParent != null) {
-                currentParent.setRight(node);
-            } else {
-                root = node;
-            }
-            node.setParent(currentParent);
-            node.setLeft(current);
-            current.setParent(node);
         } else {
-            node.setLeft(current);
             CalculationNode currentParent = current.getParent();
-            current.setParent(node);
-            node.setParent(currentParent);
             if (currentParent != null) {
                 currentParent.setRight(node);
             } else {
                 root = node;
             }
+            node.setParent(currentParent);
+            node.setLeft(current);
+            current.setParent(node);
         }
     }
 
